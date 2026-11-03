@@ -170,9 +170,15 @@ fun <T> SelectField(
     leading: (@Composable () -> Unit)? = null,
 ) {
     var open by remember { mutableStateOf(false) }
+    // null can be a real option ("Any", "Uncategorized"…): label it instead of showing an empty field.
+    val shown = when {
+        selected != null -> itemLabel(selected)
+        options.any { it == null } -> itemLabel(options.first { it == null })
+        else -> ""
+    }
     Box(modifier) {
         OutlinedTextField(
-            value = selected?.let(itemLabel) ?: "",
+            value = shown,
             onValueChange = {},
             readOnly = true,
             enabled = enabled,

@@ -262,24 +262,30 @@ fun SettingsScreen(
     }
 
     if (chooseType) {
-        AlertDialog(
-            onDismissRequest = { chooseType = false },
-            title = { Text("Add provider") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    ProviderType.entries.forEach { t ->
-                        Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh, onClick = { chooseType = false; onAddProvider(t) }) {
-                            Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                                Text(t.displayName, style = MaterialTheme.typography.titleSmall)
-                                Text(t.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+        ProviderTypePickerDialog(onDismiss = { chooseType = false }, onPick = { chooseType = false; onAddProvider(it) })
+    }
+}
+
+/** Lets the user pick which kind of backend to add; shared by Settings and the Generate empty state. */
+@Composable
+fun ProviderTypePickerDialog(onDismiss: () -> Unit, onPick: (ProviderType) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add provider") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                ProviderType.entries.forEach { t ->
+                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerHigh, onClick = { onPick(t) }) {
+                        Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                            Text(t.displayName, style = MaterialTheme.typography.titleSmall)
+                            Text(t.tagline, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
-            },
-            confirmButton = { TextButton(onClick = { chooseType = false }) { Text("Cancel") } },
-        )
-    }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
 }
 
 @Composable

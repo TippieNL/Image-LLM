@@ -66,7 +66,7 @@ GenerateViewModel ──prepare──▶ GenerationPreparer (pure)
 GenerationRepository.enqueue ──▶ Room: generations(status=QUEUED, paramsJson, denormalized prompt/model/seed…)
    │                                     generation_loras (for gallery LoRA filter)
    ▼
-GenerationScheduler ──▶ WorkManager unique work "generation-runner" (APPEND_OR_REPLACE, expedited, network)
+GenerationScheduler ──▶ WorkManager unique work "generation-runner-v2" (APPEND_OR_REPLACE, expedited, no network constraint)
    ▼
 GenerationWorker (dataSync foreground service) ──▶ GenerationRunner
         recoverInterrupted(): RUNNING rows from a dead process → provider.recover() or FAILED
@@ -95,4 +95,5 @@ The UI combines Room flows (queue, latest result, gallery) with the progress bus
 
 - One base `OkHttpClient` (connection pool, UA, debug-only safe logging). Each provider derives a client with the user's timeouts and a `HostScopedHeadersInterceptor` that injects auth only for that provider's hosts.
 - `Retry.withBackoff` retries transient failures with exponential backoff + jitter, honours `Retry-After` and Hugging Face `estimated_time`. Non-idempotent generation submits are retried only when the request provably never reached the server.
-- `NetworkMonitor` exposes connectivity (LAN-only Wi-Fi counts) for the offline banner and cache fallback; WorkManager constraints wait for a network.
+- `NetworkMonitor` exposes connectivity (LAN-only Wi-Fi counts) for the offline banner and cache fallback.
+- The generation worker has **no** WorkManager network constraint: `CONNECTED` means "validated internet" to JobScheduler, which never holds on LAN-only Wi-Fi, behind captive portals or when Google's connectivity check is blocked, and it would stop running jobs when validation flaps. An unreachable server fails the job with a clear error instead. Model downloads (internet only) keep their network constraint.

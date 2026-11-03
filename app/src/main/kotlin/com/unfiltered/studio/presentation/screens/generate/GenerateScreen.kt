@@ -98,6 +98,7 @@ import com.unfiltered.studio.domain.models.PromptEntry
 import com.unfiltered.studio.domain.models.PromptTemplate
 import com.unfiltered.studio.domain.models.ProviderConfig
 import com.unfiltered.studio.domain.models.ProviderStatus
+import com.unfiltered.studio.domain.models.ProviderType
 import com.unfiltered.studio.domain.usecases.GenerationPreparer
 import com.unfiltered.studio.presentation.components.ArchitecturePill
 import com.unfiltered.studio.presentation.components.BannerTone
@@ -107,6 +108,7 @@ import com.unfiltered.studio.presentation.components.Pill
 import com.unfiltered.studio.presentation.components.PreviewImage
 import com.unfiltered.studio.presentation.components.StatusDot
 import com.unfiltered.studio.presentation.components.TextInputDialog
+import com.unfiltered.studio.presentation.screens.settings.ProviderTypePickerDialog
 import com.unfiltered.studio.presentation.theme.LocalExtendedColors
 
 @Composable
@@ -114,7 +116,7 @@ fun GenerateScreen(
     onOpenImage: (String) -> Unit,
     onOpenGeneration: (String) -> Unit,
     onManageProviders: () -> Unit,
-    onAddProvider: () -> Unit,
+    onAddProvider: (ProviderType) -> Unit,
     onBrowseModels: () -> Unit,
     onOpenLoraLibrary: () -> Unit,
     viewModel: GenerateViewModel = hiltViewModel(),
@@ -139,6 +141,7 @@ fun GenerateScreen(
 
     var showLibrary by rememberSaveable { mutableStateOf(false) }
     var showLoraPicker by rememberSaveable { mutableStateOf(false) }
+    var pickProviderType by rememberSaveable { mutableStateOf(false) }
     var askedNotifications by rememberSaveable { mutableStateOf(false) }
 
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -163,7 +166,7 @@ fun GenerateScreen(
             TopAppBar(
                 title = { Text("Generate") },
                 actions = {
-                    ProviderSwitcher(provider, providers, statuses, onSelect = viewModel::selectProvider, onManage = onManageProviders, onAdd = onAddProvider, onTest = viewModel::testConnection)
+                    ProviderSwitcher(provider, providers, statuses, onSelect = viewModel::selectProvider, onManage = onManageProviders, onAdd = { pickProviderType = true }, onTest = viewModel::testConnection)
                     IconButton(onClick = { showLibrary = true }) { Icon(Icons.Default.Bookmarks, "Prompt library") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
@@ -172,13 +175,16 @@ fun GenerateScreen(
         snackbarHost = { SnackbarHost(snackbar) },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
+        if (pickProviderType) {
+            ProviderTypePickerDialog(onDismiss = { pickProviderType = false }, onPick = { pickProviderType = false; onAddProvider(it) })
+        }
         if (providers.isEmpty()) {
             Box(Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyState(
                     icon = Icons.Default.AutoAwesome,
                     title = "Connect a GPU backend",
                     message = "Add ComfyUI, Stable Diffusion WebUI/Forge, Hugging Face or any compatible API to start generating.",
-                    action = { Button(onClick = onAddProvider) { Text("Add provider") } },
+                    action = { Button(onClick = { pickProviderType = true }) { Text("Add provider") } },
                 )
             }
             return@Scaffold

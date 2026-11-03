@@ -76,6 +76,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -274,7 +276,11 @@ private fun LoraRow(
                 }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Checkbox(checked = inStack, onCheckedChange = { onToggleStack() })
+                Checkbox(
+                    checked = inStack,
+                    onCheckedChange = { onToggleStack() },
+                    modifier = Modifier.semantics { contentDescription = if (inStack) "Remove ${lora.name} from the active stack" else "Add ${lora.name} to the active stack" },
+                )
                 Box {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "More") }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

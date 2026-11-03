@@ -112,7 +112,7 @@ fun AppRoot(generateActions: GenerateActions) {
                             onOpenImage = { navController.navigate(ImageViewerRoute(it)) },
                             onOpenGeneration = { navController.navigate(GenerationDetailRoute(it)) },
                             onManageProviders = { navController.navigateTopLevel(SettingsRoute) },
-                            onAddProvider = { navController.navigateTopLevel(SettingsRoute) },
+                            onAddProvider = { type -> navController.navigate(ProviderEditRoute(type = type.name)) },
                             onBrowseModels = { navController.navigateTopLevel(ModelsRoute) },
                             onOpenLoraLibrary = { navController.navigateTopLevel(LorasRoute) },
                         )

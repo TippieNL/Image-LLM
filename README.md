@@ -16,7 +16,8 @@ The phone never runs the model. It's a client: it builds requests in each backen
 | `./gradlew assembleRelease` (R8 minify + resource shrink) | ✅ builds (≈5 MB unsigned APK) |
 | `./gradlew lintDebug` | ✅ no errors (remaining warnings are intentional, see *Security*) |
 | `./gradlew testDebugUnitTest` | ✅ 53 passed, 3 skipped (opt-in live ComfyUI test) |
-| Run on device / emulator | ⚠️ not done in the build environment — please smoke-test on a device |
+| Emulator end-to-end (release APK, Android 11, software emulation) | ✅ launch, add WebUI provider, test connection, catalog, generate with live progress, result on Generate screen, gallery, viewer, generation info, save to device (PNG metadata checked), LoRA sync (architecture + trigger words from metadata), cancel → `/interrupt` — against a mock WebUI server. Visual rendering was not checked (the test image has no GPU rendering) |
+| Physical device | ⚠️ not tested yet |
 | Live servers | ⚠️ adapters are tested against mock servers that reproduce each API's documented wire format (verified against ComfyUI/WebUI source and the official `huggingface.js` client). Run `LiveComfyUiTest` against your own server — see *Testing*. |
 
 ## Features
@@ -26,7 +27,7 @@ The phone never runs the model. It's a client: it builds requests in each backen
 - **LoRA manager** — library with categories, favorites, search/filters, previews, trigger words, base-model compatibility, default strength and per-server file links. Stack any number of LoRAs with individual strength (and CLIP strength on ComfyUI) and enable toggles. Sync from your server's LoRA folder, import `.safetensors` (metadata + trigger words parsed from the file header), add from Civitai/Hugging Face URLs, look up by SHA-256 on Civitai.
 - **Model browser** — Hugging Face and Civitai with pagination, kind filters (checkpoint, LoRA, textual inversion, ControlNet, VAE, image-to-image), base-model filter, sort, NSFW toggle (previews blurred unless enabled). Details show previews, description, license, versions, files with sizes and hashes. **Server** and **On device** tabs keep cloud/server storage and phone storage clearly separate.
 - **Downloads** — WorkManager foreground downloads with progress, pause/resume (HTTP Range), retry, SHA-256 verification, Wi-Fi-only option, size check before starting.
-- **Queue** — generations run in a foreground worker, survive leaving the app, can be queued, cancelled individually or all at once; ComfyUI jobs are re-attached after the app is killed.
+- **Queue** — generations run in a foreground worker, survive leaving the app, can be queued, cancelled individually or all at once; ComfyUI jobs are re-attached after the app is killed. Works on LAN-only Wi-Fi: jobs don't wait for Android's "internet validated" check.
 - **Gallery & history** — thumbnail grid (originals are never decoded in grids), full-screen pager with pinch/double-tap zoom, favorites, multi-select save/share/delete, search, filters (model, LoRA, provider, date, favorites), full generation info, reuse settings, regenerate (same seed) or variation (new seed), use as img2img input. History lists failed jobs with errors and retry.
 - **Export** — Pictures/Unfiltered AI Studio (MediaStore, no storage permission), or any folder you pick. PNGs get AUTOMATIC1111-style `parameters` metadata.
 - **Security** — tokens/passwords encrypted with an AES-256-GCM key in the Android Keystore; never logged; credentials sent only to their own hosts; backups exclude app data.
