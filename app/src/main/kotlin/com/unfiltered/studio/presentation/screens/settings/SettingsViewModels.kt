@@ -168,12 +168,13 @@ class ProviderEditViewModel @Inject constructor(
         }
     }
 
+    /** Self-hosted servers start with an empty URL (the field shows an example) so a placeholder IP is never saved by accident. */
     private fun defaultConfig(type: ProviderType): ProviderConfig {
         val id = UUID.randomUUID().toString()
         val now = System.currentTimeMillis()
         return when (type) {
-            ProviderType.A1111 -> ProviderConfig(id, "Stable Diffusion WebUI", type, "http://192.168.1.100:7860", AuthConfig(), A1111Settings(), now)
-            ProviderType.COMFYUI -> ProviderConfig(id, "ComfyUI", type, "http://192.168.1.100:8188", AuthConfig(), ComfySettings(), now)
+            ProviderType.A1111 -> ProviderConfig(id, "Stable Diffusion WebUI", type, "", AuthConfig(), A1111Settings(), now)
+            ProviderType.COMFYUI -> ProviderConfig(id, "ComfyUI", type, "", AuthConfig(), ComfySettings(), now)
             ProviderType.HUGGING_FACE -> ProviderConfig(
                 id, "Hugging Face", type, HF_ROUTER, AuthConfig(type = AuthType.BEARER, useAccountToken = true),
                 HuggingFaceSettings(defaultModelId = "black-forest-labs/FLUX.1-dev"), now,
