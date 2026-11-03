@@ -181,15 +181,14 @@ fun PreviewCard(
         }
 
         if (running == null && latest != null) {
-            when (latest.status) {
-                GenerationStatus.FAILED -> ErrorPanel(
+            // `latest` is the newest succeeded or failed job; cancelled jobs only appear in History.
+            if (latest.status == GenerationStatus.FAILED) {
+                ErrorPanel(
                     message = latest.error ?: "Generation failed",
                     details = latest.errorDetails,
                     onRetry = onRetry,
                     modifier = Modifier.padding(12.dp),
                 )
-                GenerationStatus.CANCELLED -> InfoBanner("Last generation was cancelled.", Modifier.padding(12.dp))
-                else -> Unit
             }
             if (latest.status == GenerationStatus.SUCCEEDED) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {

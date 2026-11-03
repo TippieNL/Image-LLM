@@ -91,8 +91,9 @@ interface GenerationDao {
     @Query("SELECT * FROM generations WHERE status IN ('QUEUED', 'RUNNING') ORDER BY createdAt ASC")
     fun observeActive(): Flow<List<GenerationEntity>>
 
+    /** Latest result for the Generate preview. Cancelled jobs are skipped so stopping a job keeps the last image (History lists them). */
     @Transaction
-    @Query("SELECT * FROM generations WHERE status IN ('SUCCEEDED', 'FAILED', 'CANCELLED') ORDER BY COALESCE(finishedAt, createdAt) DESC LIMIT 1")
+    @Query("SELECT * FROM generations WHERE status IN ('SUCCEEDED', 'FAILED') ORDER BY COALESCE(finishedAt, createdAt) DESC LIMIT 1")
     fun observeLatestFinished(): Flow<GenerationWithImages?>
 
     @Query("UPDATE generations SET status = 'RUNNING', startedAt = :startedAt, error = NULL, errorDetails = NULL WHERE id = :id")
