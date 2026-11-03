@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Self-hosted ComfyUI / WebUI servers usually run on plain http:// inside a LAN or VPN, so cleartext
+  is allowed. The provider editor warns when credentials would be sent unencrypted. User-installed
+  CAs are trusted so self-signed HTTPS reverse proxies work.
+-->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <!-- Reviewed: required for user-hosted backends on LAN/VPN and self-signed reverse proxies. -->
+    <base-config cleartextTrafficPermitted="true" tools:ignore="InsecureBaseConfiguration,AcceptsUserCertificates">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
